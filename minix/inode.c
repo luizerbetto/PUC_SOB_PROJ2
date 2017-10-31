@@ -26,6 +26,7 @@ static int minix_remount (struct super_block * sb, int * flags, char * data);
 
 static void minix_evict_inode(struct inode *inode)
 {
+	printk(KERN_INFO "Acessou minix_evict_inode do inode.c\n");
 	truncate_inode_pages_final(&inode->i_data);
 	if (!inode->i_nlink) {
 		inode->i_size = 0;
@@ -41,6 +42,7 @@ static void minix_put_super(struct super_block *sb)
 {
 	int i;
 	struct minix_sb_info *sbi = minix_sb(sb);
+	printk(KERN_INFO "Acessou minix_put_super do inode.c\n");
 
 	if (!(sb->s_flags & MS_RDONLY)) {
 		if (sbi->s_version != MINIX_V3)	 /* s_state is now out from V3 sb */
@@ -70,24 +72,27 @@ static struct inode *minix_alloc_inode(struct super_block *sb)
 
 static void minix_i_callback(struct rcu_head *head)
 {
+	printk(KERN_INFO "Acessou minix_i_callback do inode.c\n");
 	struct inode *inode = container_of(head, struct inode, i_rcu);
 	kmem_cache_free(minix_inode_cachep, minix_i(inode));
 }
 
 static void minix_destroy_inode(struct inode *inode)
 {
+	printk(KERN_INFO "Acessou minix_destry_inode do inode.c\n");
 	call_rcu(&inode->i_rcu, minix_i_callback);
 }
 
 static void init_once(void *foo)
 {
 	struct minix_inode_info *ei = (struct minix_inode_info *) foo;
-
+	printk(KERN_INFO "Acessou init_once do inode.c\n");
 	inode_init_once(&ei->vfs_inode);
 }
 
 static int __init init_inodecache(void)
 {
+	printk(KERN_INFO "Acessou init_inodecache do inode.c\n");
 	minix_inode_cachep = kmem_cache_create("minix_inode_cache",
 					     sizeof(struct minix_inode_info),
 					     0, (SLAB_RECLAIM_ACCOUNT|
@@ -104,6 +109,7 @@ static void destroy_inodecache(void)
 	 * Make sure all delayed rcu free inodes are flushed before we
 	 * destroy cache.
 	 */
+	printk(KERN_INFO "Acessou destroy_inodecache do inode.c\n");
 	rcu_barrier();
 	kmem_cache_destroy(minix_inode_cachep);
 }
@@ -122,6 +128,7 @@ static int minix_remount (struct super_block * sb, int * flags, char * data)
 {
 	struct minix_sb_info * sbi = minix_sb(sb);
 	struct minix_super_block * ms;
+	printk(KERN_INFO "Acessou minix_remount do inode.c\n");
 
 	sync_filesystem(sb);
 	ms = sbi->s_ms;
@@ -165,6 +172,7 @@ static int minix_fill_super(struct super_block *s, void *data, int silent)
 	struct inode *root_inode;
 	struct minix_sb_info *sbi;
 	int ret = -EINVAL;
+	printk(KERN_INFO "Acessou minix_fill_super do inode.c\n");
 
 	sbi = kzalloc(sizeof(struct minix_sb_info), GFP_KERNEL);
 	if (!sbi)
@@ -355,6 +363,7 @@ out:
 
 static int minix_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
+	printk(KERN_INFO "Acessou minix_statfs do inode.c\n");
 	struct super_block *sb = dentry->d_sb;
 	struct minix_sb_info *sbi = minix_sb(sb);
 	u64 id = huge_encode_dev(sb->s_bdev->bd_dev);
@@ -375,6 +384,7 @@ static int minix_statfs(struct dentry *dentry, struct kstatfs *buf)
 static int minix_get_block(struct inode *inode, sector_t block,
 		    struct buffer_head *bh_result, int create)
 {
+	printk(KERN_INFO "Acessou minix_get_block do inode.c\n");
 	if (INODE_VERSION(inode) == MINIX_V1)
 		return V1_minix_get_block(inode, block, bh_result, create);
 	else
@@ -383,23 +393,26 @@ static int minix_get_block(struct inode *inode, sector_t block,
 
 static int minix_writepage(struct page *page, struct writeback_control *wbc)
 {
+	printk(KERN_INFO "Acessou minix_writepage do inode.c\n");
 	return block_write_full_page(page, minix_get_block, wbc);
 }
 
 static int minix_readpage(struct file *file, struct page *page)
 {
+	printk(KERN_INFO "Acessou minix_readpage do inode.c\n");
 	return block_read_full_page(page,minix_get_block);
 }
 
 int minix_prepare_chunk(struct page *page, loff_t pos, unsigned len)
 {
+	printk(KERN_INFO "Acessou minix_prepare_chunk do inode.c\n");
 	return __block_write_begin(page, pos, len, minix_get_block);
 }
 
 static void minix_write_failed(struct address_space *mapping, loff_t to)
 {
 	struct inode *inode = mapping->host;
-
+	printk(KERN_INFO "Acessou minix_write_failed do inode.c\n");
 	if (to > inode->i_size) {
 		truncate_pagecache(inode, inode->i_size);
 		minix_truncate(inode);
@@ -411,7 +424,7 @@ static int minix_write_begin(struct file *file, struct address_space *mapping,
 			struct page **pagep, void **fsdata)
 {
 	int ret;
-
+	printk(KERN_INFO "Acessou minix_write_begin do inode.c\n");
 	ret = block_write_begin(mapping, pos, len, flags, pagep,
 				minix_get_block);
 	if (unlikely(ret))
@@ -422,6 +435,7 @@ static int minix_write_begin(struct file *file, struct address_space *mapping,
 
 static sector_t minix_bmap(struct address_space *mapping, sector_t block)
 {
+	printk(KERN_INFO "Acessou minix_bmap do inode.c\n");
 	return generic_block_bmap(mapping,block,minix_get_block);
 }
 
@@ -440,6 +454,7 @@ static const struct inode_operations minix_symlink_inode_operations = {
 
 void minix_set_inode(struct inode *inode, dev_t rdev)
 {
+	printk(KERN_INFO "Acessou minix_set_inode do inode.c\n");
 	if (S_ISREG(inode->i_mode)) {
 		inode->i_op = &minix_file_inode_operations;
 		inode->i_fop = &minix_file_operations;
@@ -603,6 +618,7 @@ static int minix_write_inode(struct inode *inode, struct writeback_control *wbc)
 {
 	int err = 0;
 	struct buffer_head *bh;
+	printk(KERN_INFO "Acessou minix_write_inode do inode.c\n");
 
 	if (INODE_VERSION(inode) == MINIX_V1)
 		bh = V1_minix_update_inode(inode);
@@ -624,6 +640,7 @@ static int minix_write_inode(struct inode *inode, struct writeback_control *wbc)
 
 int minix_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
 {
+	printk(KERN_INFO "Acessou minix_getattr do inode.c\n");
 	struct super_block *sb = dentry->d_sb;
 	generic_fillattr(d_inode(dentry), stat);
 	if (INODE_VERSION(d_inode(dentry)) == MINIX_V1)
@@ -639,6 +656,7 @@ int minix_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *sta
  */
 void minix_truncate(struct inode * inode)
 {
+	printk(KERN_INFO "Acessou minix_truncate do inode.c\n");
 	if (!(S_ISREG(inode->i_mode) || S_ISDIR(inode->i_mode) || S_ISLNK(inode->i_mode)))
 		return;
 	if (INODE_VERSION(inode) == MINIX_V1)
@@ -664,6 +682,7 @@ MODULE_ALIAS_FS("minix");
 
 static int __init init_minix_fs(void)
 {
+	printk(KERN_INFO "Acessou init_minix_fs do inode.c\n");
 	int err = init_inodecache();
 	if (err)
 		goto out1;
@@ -679,6 +698,7 @@ out1:
 
 static void __exit exit_minix_fs(void)
 {
+	printk(KERN_INFO "Acessou exit_minix_fs do inode.c\n");
         unregister_filesystem(&minix_fs_type);
 	destroy_inodecache();
 }
