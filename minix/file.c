@@ -25,6 +25,7 @@ static int minix_setattr(struct dentry *dentry, struct iattr *attr)
 {
 	struct inode *inode = d_inode(dentry);
 	int error;
+	printk(KERN_INFO "Acessou minix_setattr do file.c\n");
 
 	error = setattr_prepare(dentry, attr);
 	if (error)
