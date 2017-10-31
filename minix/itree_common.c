@@ -10,12 +10,14 @@ static DEFINE_RWLOCK(pointers_lock);
 
 static inline void add_chain(Indirect *p, struct buffer_head *bh, block_t *v)
 {
+	printk(KERN_INFO "Acessou add_chain do itree_common.c\n");
 	p->key = *(p->p = v);
 	p->bh = bh;
 }
 
 static inline int verify_chain(Indirect *from, Indirect *to)
 {
+	printk(KERN_INFO "Acessou verify_chain do itree_common.c\n");
 	while (from <= to && from->key == *from->p)
 		from++;
 	return (from > to);
@@ -23,6 +25,7 @@ static inline int verify_chain(Indirect *from, Indirect *to)
 
 static inline block_t *block_end(struct buffer_head *bh)
 {
+	printk(KERN_INFO "Acessou blcok_end do itree_common.c\n");
 	return (block_t *)((char*)bh->b_data + bh->b_size);
 }
 
@@ -35,6 +38,7 @@ static inline Indirect *get_branch(struct inode *inode,
 	struct super_block *sb = inode->i_sb;
 	Indirect *p = chain;
 	struct buffer_head *bh;
+	printk(KERN_INFO "Acessou get_branch do itree_common.c\n");
 
 	*err = 0;
 	/* i_data is not going away, no lock needed */
@@ -74,6 +78,7 @@ static int alloc_branch(struct inode *inode,
 	int n = 0;
 	int i;
 	int parent = minix_new_block(inode);
+	printk(KERN_INFO "Acessou alloc_branch do itree_common.c\n");
 
 	branch[0].key = cpu_to_block(parent);
 	if (parent) for (n = 1; n < num; n++) {
@@ -111,7 +116,7 @@ static inline int splice_branch(struct inode *inode,
 				     int num)
 {
 	int i;
-
+	printk(KERN_INFO "Acessou splice_branch do itree_common.c\n");
 	write_lock(&pointers_lock);
 
 	/* Verify that place we are splicing to is still there and vacant */
@@ -151,6 +156,7 @@ static inline int get_block(struct inode * inode, sector_t block,
 	Indirect *partial;
 	int left;
 	int depth = block_to_path(inode, block, offsets);
+	printk(KERN_INFO "Acessou get_blcok do itree_common.c\n");
 
 	if (depth == 0)
 		goto out;
@@ -207,6 +213,7 @@ changed:
 
 static inline int all_zeroes(block_t *p, block_t *q)
 {
+	printk(KERN_INFO "Acessou all_zeroes do itree_common.c\n");
 	while (p < q)
 		if (*p++)
 			return 0;
@@ -219,6 +226,7 @@ static Indirect *find_shared(struct inode *inode,
 				Indirect chain[DEPTH],
 				block_t *top)
 {
+	printk(KERN_INFO "Acessou find_shared do itree_common.c\n");
 	Indirect *partial, *p;
 	int k, err;
 
@@ -256,6 +264,7 @@ no_top:
 static inline void free_data(struct inode *inode, block_t *p, block_t *q)
 {
 	unsigned long nr;
+	printk(KERN_INFO "Acessou free_data do itree_common.c\n");
 
 	for ( ; p < q ; p++) {
 		nr = block_to_cpu(*p);
@@ -270,6 +279,7 @@ static void free_branches(struct inode *inode, block_t *p, block_t *q, int depth
 {
 	struct buffer_head * bh;
 	unsigned long nr;
+	printk(KERN_INFO "Acessou free_branches do itree_common.c\n");
 
 	if (depth--) {
 		for ( ; p < q ; p++) {
@@ -301,6 +311,7 @@ static inline void truncate (struct inode * inode)
 	int n;
 	int first_whole;
 	long iblock;
+	printk(KERN_INFO "Acessou truncate do itree_common.c\n");
 
 	iblock = (inode->i_size + sb->s_blocksize -1) >> sb->s_blocksize_bits;
 	block_truncate_page(inode->i_mapping, inode->i_size, get_block);
@@ -353,6 +364,8 @@ static inline unsigned nblocks(loff_t size, struct super_block *sb)
 	unsigned blocks, res, direct = DIRECT, i = DEPTH;
 	blocks = (size + sb->s_blocksize - 1) >> (BLOCK_SIZE_BITS + k);
 	res = blocks;
+	printk(KERN_INFO "Acessou nblocks do itree_common.c\n");
+	
 	while (--i && blocks > direct) {
 		blocks -= direct;
 		blocks += sb->s_blocksize/sizeof(block_t) - 1;
