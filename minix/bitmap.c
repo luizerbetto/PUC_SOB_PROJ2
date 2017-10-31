@@ -45,7 +45,8 @@ void minix_free_block(struct inode *inode, unsigned long block)
 	struct buffer_head *bh;
 	int k = sb->s_blocksize_bits + 3;
 	unsigned long bit, zone;
-
+	printk(KERN_INFO "Acessou minix_free_block do bitmap.c\n");
+	
 	if (block < sbi->s_firstdatazone || block >= sbi->s_nzones) {
 		printk("Trying to free block not in datazone\n");
 		return;
@@ -72,6 +73,7 @@ int minix_new_block(struct inode * inode)
 	struct minix_sb_info *sbi = minix_sb(inode->i_sb);
 	int bits_per_zone = 8 * inode->i_sb->s_blocksize;
 	int i;
+	printk(KERN_INFO "Acessou minix_new_block do bitmap.c\n");
 
 	for (i = 0; i < sbi->s_zmap_blocks; i++) {
 		struct buffer_head *bh = sbi->s_zmap[i];
@@ -97,7 +99,7 @@ unsigned long minix_count_free_blocks(struct super_block *sb)
 {
 	struct minix_sb_info *sbi = minix_sb(sb);
 	u32 bits = sbi->s_nzones - sbi->s_firstdatazone + 1;
-
+	printk(KERN_INFO "Acessou minix_count_free do bitmap.c\n");
 	return (count_free(sbi->s_zmap, sb->s_blocksize, bits)
 		<< sbi->s_log_zone_size);
 }
@@ -157,6 +159,7 @@ minix_V2_raw_inode(struct super_block *sb, ino_t ino, struct buffer_head **bh)
 static void minix_clear_inode(struct inode *inode)
 {
 	struct buffer_head *bh = NULL;
+	printk(KERN_INFO "Acessou minix_clear_inode do bitmap.c\n");
 
 	if (INODE_VERSION(inode) == MINIX_V1) {
 		struct minix_inode *raw_inode;
@@ -186,6 +189,7 @@ void minix_free_inode(struct inode * inode)
 	struct buffer_head *bh;
 	int k = sb->s_blocksize_bits + 3;
 	unsigned long ino, bit;
+	printk(KERN_INFO "Acessou minix_free_inode do bitmap.c\n");
 
 	ino = inode->i_ino;
 	if (ino < 1 || ino > sbi->s_ninodes) {
@@ -267,6 +271,7 @@ unsigned long minix_count_free_inodes(struct super_block *sb)
 {
 	struct minix_sb_info *sbi = minix_sb(sb);
 	u32 bits = sbi->s_ninodes + 1;
+	printk(KERN_INFO "Acessou minix_count_free_inodes do bitmap.c\n");
 
 	return count_free(sbi->s_imap, sb->s_blocksize, bits);
 }
