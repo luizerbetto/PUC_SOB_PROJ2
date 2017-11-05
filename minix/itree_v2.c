@@ -31,10 +31,9 @@ static inline block_t *i_data(struct inode *inode)
 
 static int block_to_path(struct inode * inode, long block, int offsets[DEPTH])
 {
-	printk(KERN_INFO "Acessou block_to_path do itree_v2.c\n");
-
 	int n = 0;
 	struct super_block *sb = inode->i_sb;
+	printk(KERN_INFO "Acessou block_to_path do itree_v2.c\n");
 
 	if (block < 0) {
 		printk("MINIX-fs: block_to_path: block %ld < 0 on dev %pg\n",

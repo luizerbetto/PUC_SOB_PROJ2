@@ -8,8 +8,8 @@
 
 static int add_nondir(struct dentry *dentry, struct inode *inode)
 {
-	printk(KERN_INFO "Acessou add_nondir do namei.c\n");
 	int err = minix_add_link(dentry, inode);
+	printk(KERN_INFO "Acessou add_nondir do namei.c\n");
 	if (!err) {
 		d_instantiate(dentry, inode);
 		printk(KERN_INFO "Deixou add_nondir do namei.c\n");
@@ -41,13 +41,13 @@ static struct dentry *minix_lookup(struct inode * dir, struct dentry *dentry, un
 
 static int minix_mknod(struct inode * dir, struct dentry *dentry, umode_t mode, dev_t rdev)
 {
-	printk(KERN_INFO "Acessou minix_mknod do namei.c\n");
 	int error;
 	struct inode *inode;
+	printk(KERN_INFO "Acessou minix_mknod do namei.c\n");
 
-	if (!old_valid_dev(rdev))
+	if (!old_valid_dev(rdev)){
 		printk(KERN_INFO "Deixou minix_mknod do namei.c\n");
-		return -EINVAL;
+		return -EINVAL;}
 
 	inode = minix_new_inode(dir, mode, &error);
 
@@ -62,9 +62,10 @@ static int minix_mknod(struct inode * dir, struct dentry *dentry, umode_t mode, 
 
 static int minix_tmpfile(struct inode *dir, struct dentry *dentry, umode_t mode)
 {
-	printk(KERN_INFO "Acessou minix_tmpfile do namei.c\n");
 	int error;
 	struct inode *inode = minix_new_inode(dir, mode, &error);
+	printk(KERN_INFO "Acessou minix_tmpfile do namei.c\n");
+
 	if (inode) {
 		minix_set_inode(inode, 0);
 		mark_inode_dirty(inode);
@@ -85,10 +86,10 @@ static int minix_create(struct inode *dir, struct dentry *dentry, umode_t mode,
 static int minix_symlink(struct inode * dir, struct dentry *dentry,
 	  const char * symname)
 {
-	printk(KERN_INFO "Acessou minix_symlink do namei.c\n");
 	int err = -ENAMETOOLONG;
 	int i = strlen(symname)+1;
 	struct inode * inode;
+	printk(KERN_INFO "Acessou minix_symlink do namei.c\n");
 
 	if (i > dir->i_sb->s_blocksize)
 		goto out;
@@ -116,8 +117,8 @@ out_fail:
 static int minix_link(struct dentry * old_dentry, struct inode * dir,
 	struct dentry *dentry)
 {
-	printk(KERN_INFO "Acessou minix_link do namei.c\n");
 	struct inode *inode = d_inode(old_dentry);
+	printk(KERN_INFO "Acessou minix_link do namei.c\n");
 
 	inode->i_ctime = current_time(inode);
 	inode_inc_link_count(inode);
@@ -128,10 +129,9 @@ static int minix_link(struct dentry * old_dentry, struct inode * dir,
 
 static int minix_mkdir(struct inode * dir, struct dentry *dentry, umode_t mode)
 {
-	printk(KERN_INFO "Acessou minix_mkdir do namei.c\n");
 	struct inode * inode;
 	int err;
-
+	printk(KERN_INFO "Acessou minix_mkdir do namei.c\n");
 	inode_inc_link_count(dir);
 
 	inode = minix_new_inode(dir, S_IFDIR | mode, &err);
@@ -166,11 +166,11 @@ out_dir:
 
 static int minix_unlink(struct inode * dir, struct dentry *dentry)
 {
-	printk(KERN_INFO "Acessou minix_unlink do namei.c\n");
 	int err = -ENOENT;
 	struct inode * inode = d_inode(dentry);
 	struct page * page;
 	struct minix_dir_entry * de;
+	printk(KERN_INFO "Acessou minix_unlink do namei.c\n");
 
 	de = minix_find_entry(dentry, &page);
 	if (!de)
@@ -189,9 +189,9 @@ end_unlink:
 
 static int minix_rmdir(struct inode * dir, struct dentry *dentry)
 {
-	printk(KERN_INFO "Acessou minix_rmdir do namei.c\n");
 	struct inode * inode = d_inode(dentry);
 	int err = -ENOTEMPTY;
+	printk(KERN_INFO "Acessou minix_rmdir do namei.c\n");
 
 	if (minix_empty_dir(inode)) {
 		err = minix_unlink(dir, dentry);
@@ -208,7 +208,6 @@ static int minix_rename(struct inode * old_dir, struct dentry *old_dentry,
 			struct inode * new_dir, struct dentry *new_dentry,
 			unsigned int flags)
 {
-	printk(KERN_INFO "Acessou minix_rename do namei.c\n");
 	struct inode * old_inode = d_inode(old_dentry);
 	struct inode * new_inode = d_inode(new_dentry);
 	struct page * dir_page = NULL;
@@ -216,6 +215,7 @@ static int minix_rename(struct inode * old_dir, struct dentry *old_dentry,
 	struct page * old_page;
 	struct minix_dir_entry * old_de;
 	int err = -ENOENT;
+	printk(KERN_INFO "Acessou minix_rename do namei.c\n");
 
 	if (flags & ~RENAME_NOREPLACE)
 		printk(KERN_INFO "Deixou minix_rename do namei.c\n");

@@ -41,11 +41,10 @@ static inline Indirect *get_branch(struct inode *inode,
 					Indirect chain[DEPTH],
 					int *err)
 {
-	printk(KERN_INFO "Acessou get_branch do itree_common.c\n");
-
 	struct super_block *sb = inode->i_sb;
 	Indirect *p = chain;
 	struct buffer_head *bh;
+	printk(KERN_INFO "Acessou get_branch do itree_common.c\n");
 
 	*err = 0;
 	/* i_data is not going away, no lock needed */
@@ -84,11 +83,10 @@ static int alloc_branch(struct inode *inode,
 			     int *offsets,
 			     Indirect *branch)
 {
-	printk(KERN_INFO "Acessou alloc_branch do itree_common.c\n");
-
 	int n = 0;
 	int i;
 	int parent = minix_new_block(inode);
+	printk(KERN_INFO "Acessou alloc_branch do itree_common.c\n");
 
 	branch[0].key = cpu_to_block(parent);
 	if (parent) for (n = 1; n < num; n++) {
@@ -167,14 +165,13 @@ changed:
 static inline int get_block(struct inode * inode, sector_t block,
 			struct buffer_head *bh, int create)
 {
-	printk(KERN_INFO "Acessou get_block do itree_common.c\n");
 	int err = -EIO;
 	int offsets[DEPTH];
 	Indirect chain[DEPTH];
 	Indirect *partial;
 	int left;
 	int depth = block_to_path(inode, block, offsets);
-
+	printk(KERN_INFO "Acessou get_block do itree_common.c\n");
 	if (depth == 0)
 		goto out;
 
@@ -247,9 +244,9 @@ static Indirect *find_shared(struct inode *inode,
 				Indirect chain[DEPTH],
 				block_t *top)
 {
-	printk(KERN_INFO "Acessou find_shared do itree_common.c\n");
 	Indirect *partial, *p;
 	int k, err;
+	printk(KERN_INFO "Acessou find_shared do itree_common.c\n");
 
 	*top = 0;
 	for (k = depth; k > 1 && !offsets[k-1]; k--)
@@ -330,8 +327,6 @@ static void free_branches(struct inode *inode, block_t *p, block_t *q, int depth
 
 static inline void truncate (struct inode * inode)
 {
-	printk(KERN_INFO "Acessou truncate do itree_common.c\n");
-
 	struct super_block *sb = inode->i_sb;
 	block_t *idata = i_data(inode);
 	int offsets[DEPTH];
@@ -341,6 +336,7 @@ static inline void truncate (struct inode * inode)
 	int n;
 	int first_whole;
 	long iblock;
+	printk(KERN_INFO "Acessou truncate do itree_common.c\n");
 
 	iblock = (inode->i_size + sb->s_blocksize -1) >> sb->s_blocksize_bits;
 	block_truncate_page(inode->i_mapping, inode->i_size, get_block);
@@ -392,10 +388,10 @@ do_indirects:
 
 static inline unsigned nblocks(loff_t size, struct super_block *sb)
 {
-	printk(KERN_INFO "Acessou nblocks do itree_common.c\n");
 
 	int k = sb->s_blocksize_bits - 10;
 	unsigned blocks, res, direct = DIRECT, i = DEPTH;
+	printk(KERN_INFO "Acessou nblocks do itree_common.c\n");
 	blocks = (size + sb->s_blocksize - 1) >> (BLOCK_SIZE_BITS + k);
 	res = blocks;
 	

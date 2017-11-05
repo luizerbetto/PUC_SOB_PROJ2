@@ -41,9 +41,9 @@ static void minix_evict_inode(struct inode *inode)
 
 static void minix_put_super(struct super_block *sb)
 {
-	printk(KERN_INFO "Acessou minix_put_super do inode.c\n");
 	int i;
 	struct minix_sb_info *sbi = minix_sb(sb);	
+	printk(KERN_INFO "Acessou minix_put_super do inode.c\n");
 
 	if (!(sb->s_flags & MS_RDONLY)) {
 		if (sbi->s_version != MINIX_V3)	 /* s_state is now out from V3 sb */
@@ -74,8 +74,8 @@ static struct inode *minix_alloc_inode(struct super_block *sb)
 
 static void minix_i_callback(struct rcu_head *head)
 {
-	printk(KERN_INFO "Acessou minix_i_callback do inode.c\n");
 	struct inode *inode = container_of(head, struct inode, i_rcu);
+	printk(KERN_INFO "Acessou minix_i_callback do inode.c\n");
 	kmem_cache_free(minix_inode_cachep, minix_i(inode));
 	printk(KERN_INFO "Deixou minix_i_callback do inode.c\n");
 }
@@ -103,9 +103,9 @@ static int __init init_inodecache(void)
 					     0, (SLAB_RECLAIM_ACCOUNT|
 						SLAB_MEM_SPREAD|SLAB_ACCOUNT),
 					     init_once);
-	if (minix_inode_cachep == NULL)
+	if (minix_inode_cachep == NULL){
 		printk(KERN_INFO "Deixou init_inodecache do inode.c\n");
-		return -ENOMEM;
+		return -ENOMEM;}
 	printk(KERN_INFO "Deixou init_inodecache do inode.c\n");
 	return 0;
 }
@@ -134,20 +134,20 @@ static const struct super_operations minix_sops = {
 
 static int minix_remount (struct super_block * sb, int * flags, char * data)
 {
-	printk(KERN_INFO "Acessou minix_remount do inode.c\n");
 	struct minix_sb_info * sbi = minix_sb(sb);
 	struct minix_super_block * ms;
+	printk(KERN_INFO "Acessou minix_remount do inode.c\n");
 
 	sync_filesystem(sb);
 	ms = sbi->s_ms;
-	if ((*flags & MS_RDONLY) == (sb->s_flags & MS_RDONLY))
+	if ((*flags & MS_RDONLY) == (sb->s_flags & MS_RDONLY)){
 		printk(KERN_INFO "Deixou minix_remount do inode.c\n");
-		return 0;
+		return 0;}
 	if (*flags & MS_RDONLY) {
 		if (ms->s_state & MINIX_VALID_FS ||
-		    !(sbi->s_mount_state & MINIX_VALID_FS))
+		    !(sbi->s_mount_state & MINIX_VALID_FS)){
 			printk(KERN_INFO "Deixou minix_remount do inode.c\n");
-			return 0;
+			return 0;}
 		/* Mounting a rw partition read-only. */
 		if (sbi->s_version != MINIX_V3)
 			ms->s_state = sbi->s_mount_state;
@@ -175,7 +175,6 @@ static int minix_remount (struct super_block * sb, int * flags, char * data)
 
 static int minix_fill_super(struct super_block *s, void *data, int silent)
 {
-	printk(KERN_INFO "Acessou minix_fill_super do inode.c\n");
 	struct buffer_head *bh;
 	struct buffer_head **map;
 	struct minix_super_block *ms;
@@ -184,6 +183,7 @@ static int minix_fill_super(struct super_block *s, void *data, int silent)
 	struct inode *root_inode;
 	struct minix_sb_info *sbi;
 	int ret = -EINVAL;
+	printk(KERN_INFO "Acessou minix_fill_super do inode.c\n");
 
 	sbi = kzalloc(sizeof(struct minix_sb_info), GFP_KERNEL);
 	if (!sbi)
@@ -320,9 +320,9 @@ static int minix_fill_super(struct super_block *s, void *data, int silent)
 	if (!(sbi->s_mount_state & MINIX_VALID_FS))
 		printk("MINIX-fs: mounting unchecked file system, "
 			"running fsck is recommended\n");
-	else if (sbi->s_mount_state & MINIX_ERROR_FS)
+	else if (sbi->s_mount_state & MINIX_ERROR_FS){
 		printk("MINIX-fs: mounting file system with errors, "
-			"running fsck is recommended\n");
+			"running fsck is recommended\n");}
 
 	printk(KERN_INFO "Deixou minix_fill_super do inode.c\n");
 	return 0;
@@ -376,10 +376,10 @@ out:
 
 static int minix_statfs(struct dentry *dentry, struct kstatfs *buf)
 {
-	printk(KERN_INFO "Acessou minix_statfs do inode.c\n");
 	struct super_block *sb = dentry->d_sb;
 	struct minix_sb_info *sbi = minix_sb(sb);
 	u64 id = huge_encode_dev(sb->s_bdev->bd_dev);
+	printk(KERN_INFO "Acessou minix_statfs do inode.c\n");
 	buf->f_type = sb->s_magic;
 	buf->f_bsize = sb->s_blocksize;
 	buf->f_blocks = (sbi->s_nzones - sbi->s_firstdatazone) << sbi->s_log_zone_size;
@@ -399,12 +399,14 @@ static int minix_get_block(struct inode *inode, sector_t block,
 		    struct buffer_head *bh_result, int create)
 {
 	printk(KERN_INFO "Acessou minix_get_block do inode.c\n");
-	if (INODE_VERSION(inode) == MINIX_V1)
+	if (INODE_VERSION(inode) == MINIX_V1){
 		printk(KERN_INFO "Deixou minix_get_block do inode.c\n");
 		return V1_minix_get_block(inode, block, bh_result, create);
-	else
+	}
+	else{
 		printk(KERN_INFO "Deixou minix_get_block do inode.c\n");
 		return V2_minix_get_block(inode, block, bh_result, create);
+	}
 }
 
 static int minix_writepage(struct page *page, struct writeback_control *wbc)
@@ -430,8 +432,8 @@ int minix_prepare_chunk(struct page *page, loff_t pos, unsigned len)
 
 static void minix_write_failed(struct address_space *mapping, loff_t to)
 {
-	printk(KERN_INFO "Acessou minix_write_failed do inode.c\n");
 	struct inode *inode = mapping->host;
+	printk(KERN_INFO "Acessou minix_write_failed do inode.c\n");
 	if (to > inode->i_size) {
 		truncate_pagecache(inode, inode->i_size);
 		minix_truncate(inode);
@@ -443,8 +445,8 @@ static int minix_write_begin(struct file *file, struct address_space *mapping,
 			loff_t pos, unsigned len, unsigned flags,
 			struct page **pagep, void **fsdata)
 {
-	printk(KERN_INFO "Acessou minix_write_begin do inode.c\n");
 	int ret;
+	printk(KERN_INFO "Acessou minix_write_begin do inode.c\n");
 	ret = block_write_begin(mapping, pos, len, flags, pagep,
 				minix_get_block);
 	if (unlikely(ret))
@@ -639,17 +641,17 @@ static struct buffer_head * V2_minix_update_inode(struct inode * inode)
 
 static int minix_write_inode(struct inode *inode, struct writeback_control *wbc)
 {
-	printk(KERN_INFO "Acessou minix_write_inode do inode.c\n");
 	int err = 0;
 	struct buffer_head *bh;
+	printk(KERN_INFO "Acessou minix_write_inode do inode.c\n");
 
 	if (INODE_VERSION(inode) == MINIX_V1)
 		bh = V1_minix_update_inode(inode);
 	else
 		bh = V2_minix_update_inode(inode);
-	if (!bh)
+	if (!bh){
 		printk(KERN_INFO "Deixou minix_write_inode do inode.c\n");
-		return -EIO;
+		return -EIO;}
 	if (wbc->sync_mode == WB_SYNC_ALL && buffer_dirty(bh)) {
 		sync_dirty_buffer(bh);
 		if (buffer_req(bh) && !buffer_uptodate(bh)) {
@@ -665,8 +667,8 @@ static int minix_write_inode(struct inode *inode, struct writeback_control *wbc)
 
 int minix_getattr(struct vfsmount *mnt, struct dentry *dentry, struct kstat *stat)
 {
-	printk(KERN_INFO "Acessou minix_getattr do inode.c\n");
 	struct super_block *sb = dentry->d_sb;
+	printk(KERN_INFO "Acessou minix_getattr do inode.c\n");
 	generic_fillattr(d_inode(dentry), stat);
 	if (INODE_VERSION(d_inode(dentry)) == MINIX_V1)
 		stat->blocks = (BLOCK_SIZE / 512) * V1_minix_blocks(stat->size, sb);
@@ -709,13 +711,13 @@ MODULE_ALIAS_FS("minix");
 
 static int __init init_minix_fs(void)
 {
-	printk(KERN_INFO "Acessou init_minix_fs do inode.c\n");
 	int err = init_inodecache();
-	if (err)
-		goto out1;
+	printk(KERN_INFO "Acessou init_minix_fs do inode.c\n");
+	if (err){
+		goto out1;}
 	err = register_filesystem(&minix_fs_type);
-	if (err)
-		goto out;
+	if (err){
+		goto out;}
 	printk(KERN_INFO "Deixou init_minix_fs do inode.c\n");
 	return 0;
 out:
