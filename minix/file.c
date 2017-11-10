@@ -28,14 +28,16 @@ static int minix_setattr(struct dentry *dentry, struct iattr *attr)
 	printk(KERN_INFO "Acessou minix_setattr do file.c\n");
 
 	error = setattr_prepare(dentry, attr);
-	if (error)
-		return error;
+	if (error){
+		printk(KERN_INFO "Deixou minix_setattr do file.c em erro\n");
+		return error;}
 
 	if ((attr->ia_valid & ATTR_SIZE) &&
 	    attr->ia_size != i_size_read(inode)) {
 		error = inode_newsize_ok(inode, attr->ia_size);
-		if (error)
-			return error;
+		if (error){
+			printk(KERN_INFO "Deixou minix_setattr do file.c em erro\n");
+			return error;}
 
 		truncate_setsize(inode, attr->ia_size);
 		minix_truncate(inode);
@@ -43,6 +45,7 @@ static int minix_setattr(struct dentry *dentry, struct iattr *attr)
 
 	setattr_copy(inode, attr);
 	mark_inode_dirty(inode);
+	printk(KERN_INFO "Deixou minix_setattr do file.c\n");
 	return 0;
 }
 

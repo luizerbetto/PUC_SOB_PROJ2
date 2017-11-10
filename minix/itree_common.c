@@ -13,6 +13,8 @@ static inline void add_chain(Indirect *p, struct buffer_head *bh, block_t *v)
 	printk(KERN_INFO "Acessou add_chain do itree_common.c\n");
 	p->key = *(p->p = v);
 	p->bh = bh;
+	printk(KERN_INFO "Deixou add_chain do itree_common.c\n");
+
 }
 
 static inline int verify_chain(Indirect *from, Indirect *to)
@@ -20,12 +22,16 @@ static inline int verify_chain(Indirect *from, Indirect *to)
 	printk(KERN_INFO "Acessou verify_chain do itree_common.c\n");
 	while (from <= to && from->key == *from->p)
 		from++;
+    
+   	printk(KERN_INFO "Deixou verify_chain do itree_common.c\n");
+
 	return (from > to);
 }
 
 static inline block_t *block_end(struct buffer_head *bh)
 {
 	printk(KERN_INFO "Acessou blcok_end do itree_common.c\n");
+	printk(KERN_INFO "Deixou blcok_end do itree_common.c\n");
 	return (block_t *)((char*)bh->b_data + bh->b_size);
 }
 
@@ -57,6 +63,8 @@ static inline Indirect *get_branch(struct inode *inode,
 		if (!p->key)
 			goto no_block;
 	}
+	printk(KERN_INFO "Deixou get_branch do itree_common.c\n");
+
 	return NULL;
 
 changed:
@@ -107,6 +115,9 @@ static int alloc_branch(struct inode *inode,
 		bforget(branch[i].bh);
 	for (i = 0; i < n; i++)
 		minix_free_block(inode, block_to_cpu(branch[i].key));
+    
+	printk(KERN_INFO "Deixou alloc_branch do itree_common.c\n");
+
 	return -ENOSPC;
 }
 
@@ -136,6 +147,9 @@ static inline int splice_branch(struct inode *inode,
 		mark_buffer_dirty_inode(where->bh, inode);
 
 	mark_inode_dirty(inode);
+
+	printk(KERN_INFO "Deixou splice_branch do itree_common.c\n");
+
 	return 0;
 
 changed:
@@ -144,6 +158,7 @@ changed:
 		bforget(where[i].bh);
 	for (i = 0; i < num; i++)
 		minix_free_block(inode, block_to_cpu(where[i].key));
+	printk(KERN_INFO "Deixou splice_branch do itree_common.c\n");
 	return -EAGAIN;
 }
 
@@ -156,8 +171,7 @@ static inline int get_block(struct inode * inode, sector_t block,
 	Indirect *partial;
 	int left;
 	int depth = block_to_path(inode, block, offsets);
-	printk(KERN_INFO "Acessou get_blcok do itree_common.c\n");
-
+	printk(KERN_INFO "Acessou get_block do itree_common.c\n");
 	if (depth == 0)
 		goto out;
 
@@ -181,6 +195,8 @@ cleanup:
 			partial--;
 		}
 out:
+	printk(KERN_INFO "Deixou get_block do itree_common.c\n");
+
 		return err;
 	}
 
@@ -217,6 +233,8 @@ static inline int all_zeroes(block_t *p, block_t *q)
 	while (p < q)
 		if (*p++)
 			return 0;
+   	printk(KERN_INFO "Acessou all_zeroes do itree_common.c\n");
+
 	return 1;
 }
 
@@ -226,9 +244,9 @@ static Indirect *find_shared(struct inode *inode,
 				Indirect chain[DEPTH],
 				block_t *top)
 {
-	printk(KERN_INFO "Acessou find_shared do itree_common.c\n");
 	Indirect *partial, *p;
 	int k, err;
+	printk(KERN_INFO "Acessou find_shared do itree_common.c\n");
 
 	*top = 0;
 	for (k = depth; k > 1 && !offsets[k-1]; k--)
@@ -258,6 +276,8 @@ static Indirect *find_shared(struct inode *inode,
 		partial--;
 	}
 no_top:
+	printk(KERN_INFO "Deixou find_shared do itree_common.c\n");
+
 	return partial;
 }
 
@@ -273,6 +293,8 @@ static inline void free_data(struct inode *inode, block_t *p, block_t *q)
 			minix_free_block(inode, nr);
 		}
 	}
+	printk(KERN_INFO "Deixou free_data do itree_common.c\n");
+
 }
 
 static void free_branches(struct inode *inode, block_t *p, block_t *q, int depth)
@@ -298,6 +320,9 @@ static void free_branches(struct inode *inode, block_t *p, block_t *q, int depth
 		}
 	} else
 		free_data(inode, p, q);
+
+	printk(KERN_INFO "Deixou free_branches do itree_common.c\n");
+
 }
 
 static inline void truncate (struct inode * inode)
@@ -356,15 +381,19 @@ do_indirects:
 	}
 	inode->i_mtime = inode->i_ctime = current_time(inode);
 	mark_inode_dirty(inode);
+    
+	printk(KERN_INFO "Deixou truncate do itree_common.c\n");
+
 }
 
 static inline unsigned nblocks(loff_t size, struct super_block *sb)
 {
+
 	int k = sb->s_blocksize_bits - 10;
 	unsigned blocks, res, direct = DIRECT, i = DEPTH;
+	printk(KERN_INFO "Acessou nblocks do itree_common.c\n");
 	blocks = (size + sb->s_blocksize - 1) >> (BLOCK_SIZE_BITS + k);
 	res = blocks;
-	printk(KERN_INFO "Acessou nblocks do itree_common.c\n");
 	
 	while (--i && blocks > direct) {
 		blocks -= direct;
@@ -373,5 +402,7 @@ static inline unsigned nblocks(loff_t size, struct super_block *sb)
 		res += blocks;
 		direct = 1;
 	}
+	printk(KERN_INFO "Deixou nblocks do itree_common.c\n");
+
 	return res;
 }
