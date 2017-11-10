@@ -1,0 +1,86 @@
+Crie um volume de disco rígido virtual dentro de um arquivo no Linux
+O conceito de volumes de disco rígido virtual, às vezes chamado de arquivos, eles são basicamente arquivos de aparência normal que podem ser usados ​​pelo seu computador como se fossem discos rígidos reais. Então, por exemplo, poderia ter um arquivo chamado MyDrive.img no seu computador e com algumas ações rápidas, parece que acabou de conectar uma placa USB ou disco rígido externo ao seu computador. Funciona como uma unidade normal, física, mas sempre que copia qualquer coisa para essa localização, os arquivos copiados estão realmente sendo gravados no arquivo MyDrive.img nos bastidores. Isso não é diferente dos arquivos dmg que encontraria em um Mac ou mesmo algo semelhante aos recipientes de arquivos TrueCrypt.
+
+Há uma série de razões pelas quais pode estar interessado em criar volumes virtuais. De adicionar espaço de troca adicional ao seu computador (ou seja, algo semelhante a um arquivo de página no Windows sem precisar criar uma nova partição de disco rígido) para criar unidades de disco virtual portátil para fazer backup de arquivos, ou mesmo fazê-lo porque este é o Linux e É uma espécie de coisa legal a fazer.
+
+As etapas para criar um contêiner de arquivo:
+
+O processo parece um pouco estranho, mas na verdade é realmente direto.
+
+    Crie um novo arquivo para manter o volume da unidade virtual
+        (Opcional) Inicialize-o preenchendo dados
+    Formate o volume
+    Monte o volume e use-o
+
+
+Crie um novo arquivo para manter o volume da unidade virtual
+
+Provavelmente há um milhão de maneiras diferentes de fazer isso, mas acho que a maneira mais simples é executar o seguinte comando de um terminal:
+
+
+fallocate -l <size> <arquivo para criar>
+
+Então, digamos que  queria criar um volume virtual em um arquivo chamado MyDrive.img no diretório atual com um tamanho de 500MiB. Executar  o seguinte comando:
+
+Fallocate -l 500M MyDrive.img
+
+ pode notar que esse comando termina quase que instantaneamente. Isso ocorre porque, enquanto o sistema criou um arquivo 500MiB, ele realmente não escreveu 500MiB de dados para o arquivo.
+
+Este é o lugar onde a etapa opcional de "inicializar" o arquivo entra em jogo. Para ser claro,  não precisa fazer esse passo, mas pode ser uma boa prática se quiser limpar o conteúdo do espaço alocado. Por exemplo, se  quisesse evitar que alguém percebesse facilmente quando  escreve dados nesse arquivo,  pode pré-preencher o espaço com dados aleatórios para tornar mais difícil de ver ou  pode simplesmente querer excluir essa parte do disco rígido primeiro .
+
+De qualquer forma, se  optar por preencher previamente o arquivo com dados, o método mais fácil é usar o comando dd. POR FAVOR TENHA CUIDADO - dd é muitas vezes apelidado de destruidor de disco, porque ele irá substituir a todos os dados que  disse, incluindo o material que  queria manter se  cometeu um erro ao digitar o comando!
+
+Para preencher o arquivo com todos os zeros, simplesmente execute este comando
+
+
+dd if = / dev / zero of = <your file> bs = 1M count = <o tamanho do seu arquivo em MiB>
+
+
+Então, para o arquivo acima,  executar:
+
+dd if = / dev / zero of = MyDrive.img bs = 1M count = 500
+
+Se  quiser preenchê-lo com dados aleatórios, basta trocar / dev / zero para / dev / urandom ou / dev / random no comando:
+
+dd if = / dev / urandom de = MyDrive.img bs = 1M count = 500
+
+
+Formatar e montar o volume virtual
+
+Em seguida, precisamos dar ao volume um sistema de arquivos.  pode fazer isso através da linha de comando ou usar uma ferramenta gráfica. Vou mostrar um exemplo de ambos.
+
+Do terminal,  executar o comando mkfs apropriado no arquivo. Como exemplo, isso formará o arquivo acima usando o sistema de arquivos ext3:
+
+mkfs -t ext3 MyDrive.img
+
+ pode receber um aviso que se parece a isso
+
+MyDrive.img não é um dispositivo especial de bloco.
+Proceda de qualquer maneira? (y, n)
+
+Basta digitar a letra 'y' e pressionar Enter. Com sorte,  verá um monte de texto dizendo exatamente o que aconteceu e agora  possui um arquivo formatado com o ext3!
+
+Se preferir fazer as coisas da maneira gráfica, use uma ferramenta como Disks (gnome-disk-utility) para formatar o arquivo.
+
+No menu em Discos, selecione Discos -> Anexar Imagem do Disco e navegue para o arquivo recém-criado (ou seja, MyDrive.img).
+
+
+Certifique-se de desmarcar "Configurar dispositivo de loop somente leitura". Se  deixar isso, não poderá formatar ou escrever nada no volume. Selecione o arquivo e clique em Anexar.
+
+Isso irá anexar o arquivo, como se fosse um disco rígido real, para o seu computador:
+
+
+Em seguida, precisamos formatar o volume. Pressione o pequeno botão com duas marchas logo abaixo do volume anexado e clique em Formatar. Certifique-se de fazer isso para a "unidade" correta para que  não formata acidentalmente o seu disco rígido real.
+
+
+sudo mkdir / media / MyDrive
+
+Em seguida, monte o arquivo para a pasta:
+
+sudo mount -t auto -o loop MyDrive.img / media / MyDrive /
+
+Agora  pode copiar arquivos para a unidade como antes. Quando terminar, desfazer o volume executando este comando:
+
+sudo umount / media / MyDrive /
+
+E lá  tem isso. Agora,  sabe como criar arquivos de volume virtual que  pode usar praticamente qualquer coisa e mover facilmente do computador para computador.
