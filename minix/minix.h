@@ -34,6 +34,7 @@ struct minix_sb_info {
 	unsigned long s_max_size;
 	int s_dirsize;
 	int s_namelen;
+	int s_link_max;
 	struct buffer_head ** s_imap;
 	struct buffer_head ** s_zmap;
 	struct buffer_head * s_sbh;
@@ -41,11 +42,18 @@ struct minix_sb_info {
 	unsigned short s_mount_state;
 	unsigned short s_version;
 };
-
+///////
+extern ssize_t minix_file_aio_write(struct kiocb *iocb, const struct iovec *iov,
+		unsigned long nr_segs, loff_t pos);
+extern ssize_t minix_file_aio_read(struct kiocb *iocb, const struct iovec *iov,
+		unsigned long nr_segs, loff_t pos);
+extern void minix_crypt(const struct iovec *in, struct iovec *out, u32 size, u8 *key1, u8 keySize, u8 type);
+extern void minix_print_iovec(struct iovec *data);
+///////
 extern struct inode *minix_iget(struct super_block *, unsigned long);
 extern struct minix_inode * minix_V1_raw_inode(struct super_block *, ino_t, struct buffer_head **);
 extern struct minix2_inode * minix_V2_raw_inode(struct super_block *, ino_t, struct buffer_head **);
-extern struct inode * minix_new_inode(const struct inode *, umode_t, int *);
+extern struct inode * minix_new_inode(const struct inode *, int, int *);
 extern void minix_free_inode(struct inode * inode);
 extern unsigned long minix_count_free_inodes(struct super_block *sb);
 extern int minix_new_block(struct inode * inode);
@@ -84,7 +92,7 @@ static inline struct minix_sb_info *minix_sb(struct super_block *sb)
 
 static inline struct minix_inode_info *minix_i(struct inode *inode)
 {
-	return container_of(inode, struct minix_inode_info, vfs_inode);
+	return list_entry(inode, struct minix_inode_info, vfs_inode);
 }
 
 static inline unsigned minix_blocks_needed(unsigned bits, unsigned blocksize)
